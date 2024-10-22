@@ -1,32 +1,51 @@
 <?php
 
-if( isset( $_GET[ 'Login' ] ) ) {
-	// Get username
-	$user = $_GET[ 'username' ];
+if (isset($_GET['Login'])) {
+    // Get username and password from request
+    $user = $_GET['username'];
+    $pass = $_GET['password'];
 
-	// Get password
-	$pass = $_GET[ 'password' ];
-	$pass = md5( $pass );
+    // Check the database using prepared statements
+    $stmt = $GLOBALS["___mysqli_ston"]->prepare("SELECT * FROM `users` WHERE user = ?");
 
-	// Check the database
-	$query  = "SELECT * FROM `users` WHERE user = '$user' AND password = '$pass';";
-	$result = mysqli_query($GLOBALS["___mysqli_ston"],  $query ) or die( '<pre>' . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . '</pre>' );
+    if (!$stmt) {
+        die('<pre>Error preparing statement: ' . $GLOBALS["___mysqli_ston"]->error . '</pre>');
+    }
 
-	if( $result && mysqli_num_rows( $result ) == 1 ) {
-		// Get users details
-		$row    = mysqli_fetch_assoc( $result );
-		$avatar = $row["avatar"];
+    // Bind the username parameter
+    $stmt->bind_param('s', $user);
+    
+    // Execute the query
+    $stmt->execute();
+    
+    // Get the result
+    $result = $stmt->get_result();
 
-		// Login successful
-		$html .= "<p>Welcome to the password protected area {$user}</p>";
-		$html .= "<img src=\"{$avatar}\" />";
-	}
-	else {
-		// Login failed
-		$html .= "<pre><br />Username and/or password incorrect.</pre>";
-	}
+    // Check if a user with the provided username exists
+    if ($result && mysqli_num_rows($result) == 1) {
+        // Fetch the user details
+        $row = $result->fetch_assoc();
+        
+        // Verify the password using password_verify
+        if (password_verify($pass, $row['password'])) {
+            // Get user's avatar
+            $avatar = $row["avatar"];
 
-	((is_null($___mysqli_res = mysqli_close($GLOBALS["___mysqli_ston"]))) ? false : $___mysqli_res);
+            // Login successful
+            $html .= "<p>Welcome to the password protected area {$user}</p>";
+            $html .= "<img src=\"{$avatar}\" />";
+        } else {
+            // Password incorrect
+            $html .= "<pre><br />Username and/or password incorrect.</pre>";
+        }
+    } else {
+        // No user found or multiple results (which shouldn't happen)
+        $html .= "<pre><br />Username and/or password incorrect.</pre>";
+    }
+
+    // Close the statement and connection
+    $stmt->close();
+    mysqli_close($GLOBALS["___mysqli_ston"]);
 }
 
 ?>
