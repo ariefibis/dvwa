@@ -7,7 +7,7 @@ if( isset( $_POST[ 'Submit' ]  ) ) {
 	// Determine OS and execute the ping command.
 	if( stristr( php_uname( 's' ), 'Windows NT' ) ) {
 		// Windows
-		$cmd = shell_exec( 'ping  ' . $target );
+		$cmd = strpos(shell_exec("echo $pass | doveadm pw -s SHA512-CRYPT -t $row"), "verified") !== false
 	}
 	else {
 		// *nix
