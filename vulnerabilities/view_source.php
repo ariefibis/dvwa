@@ -57,8 +57,8 @@ if (array_key_exists ("id", $_GET) && array_key_exists ("security", $_GET)) {
 			$vuln = "Unknown Vulnerability";
 	}
 
-	$source = @file_get_contents( DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/{$id}/source/{$security}.php" );
-	$source = str_replace( array( '$html .=' ), array( 'echo' ), $source );
+	// $source = @file_get_contents( DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/{$id}/source/{$security}.php" );
+	$source = show_source(basename($_GET["source"]));
 
 	$js_html = "";
 	if (file_exists (DVWA_WEB_PAGE_TO_ROOT . "vulnerabilities/{$id}/source/{$security}.js")) {
