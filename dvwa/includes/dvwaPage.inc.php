@@ -591,7 +591,7 @@ function dvwaDatabaseConnect() {
 
 function dvwaRedirect( $pLocation ) {
 	session_commit();
-	header( "Location: {$pLocation}" );
+	header("Location: action.php?result=0");
 	exit;
 }
 
